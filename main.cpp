@@ -18,7 +18,7 @@ int linhas = 6;
 int colunas = 7;
 int tabuleiro[6][7];
 int c1 = 6, c2 = 6, c3 = 6, c4 = 6, c5 = 6, c6 = 6, c7 = 6;
-int ganhador = 3; // sera 0 se ninguem ganhou, 1 se o vermelho ganhou, 2 se o amarelo ganhou, 3 empate
+int ganhador = 0; // sera 0 se ninguem ganhou, 1 se o vermelho ganhou, 2 se o amarelo ganhou, 3 empate
 int playerAtual = 1; //1 = vermelho, 2 = amarelo
 enum GameState {
     TELA_INICIO,
@@ -27,7 +27,7 @@ enum GameState {
     TELA_FIM,
     GAME_QUIT
 };
-enum GameState connect4 = TELA_FIM;
+enum GameState connect4 = TELA_INICIO;
 enum GameState estadoAnterior; //usada para "lembrar" o menu de ajuda em qual tela estava
 float anima = 700;
 float raioQuit = 500;
@@ -36,7 +36,7 @@ int tamanhoCasa = 80;
 int scoreVermelho = 0, scoreAmarelo = 0;
 float rV = 1, gV = 0.18, bV = 0.18; // Cor vermelha
 float rA = 1, gA = 0.8, bA = 0; // Cor amarela
-float rR = 0.26, gR = 0.13, bR = 0.93; // Cor roxa
+float rR = 0.26, gR = 0.13, bR = 0.93; // Cor azul
 float rL = 1, gL = 0.5, bL = 0; // Cor laranja
 
 
@@ -55,13 +55,13 @@ void desenhaInicio() {
     CV::rect(280, 180, 420, 230);
     CV::rect(230, 480, 470, 530);
     CV::rect(225, 475, 475, 535);
-    CV::rect((screenWidth / 2) - 75 , screenHeight - 85, (screenWidth / 2) + 75, screenHeight - 55);
-    CV::text(287, screenHeight - 75, "Menu de Ajuda", 13);
-    CV::text(323, 202, "JOGAR!", 15);
+    CV::rect((screenWidth / 2) - 40 , screenHeight - 85, (screenWidth / 2) + 40, screenHeight - 55);
+    CV::text(331, screenHeight - 75, "HELP", 13);
+    CV::text(328, 202, "PLAY!", 15);
     CV::color(0,0,0);
-    CV::text(242, 500, "Bem vindo ao Connect4!", 15);
-    CV::text(152, 400, "Selecione um player para iniciar o jogo:", 13);
-    CV::text(167, 260, "Clique ou pressione ENTER para jogar:", 13);
+    CV::text(253, 500, "Welcome to Connect4!", 15);
+    CV::text(227, 400, "Select a player to start:", 13);
+    CV::text(285, 245, "ENTER to play", 13);
     if (playerAtual == 1) {
         CV::circle((screenWidth / 2) - 45, 340, 35, 35);
     } else if (playerAtual == 2) {
@@ -198,10 +198,10 @@ void desenhaJogo() {
         }
     }
     CV::color(rR, gR, bR);
-    CV::rect((screenWidth / 2) - 75, screenHeight - 85, (screenWidth / 2) + 75, screenHeight - 55);
-    CV::text(70, screenHeight - 75, "Jogador atual:", 15);
-    CV::text(287, screenHeight - 75, "Menu de Ajuda", 13);
-    CV::text(470, screenHeight - 40, "Nivel de dificuldade:", 13);
+    CV::rect((screenWidth / 2) - 40, screenHeight - 85, (screenWidth / 2) + 40, screenHeight - 55);
+
+    CV::text(331, screenHeight - 75, "HELP", 13);
+    CV::text(520, screenHeight - 45, "Board size:", 13);
     CV::rect(510, screenHeight - 85, 560, screenHeight - 55);
     CV::rect(580, screenHeight - 85, 630, screenHeight - 55);
     CV::text(530, screenHeight - 75, "-", 15);
@@ -209,10 +209,14 @@ void desenhaJogo() {
 
     if (playerAtual == 1) {
         CV::color(rV, gV, bV);
+        CV::text(70, screenHeight - 75, "Your turn, Red!", 15);
+        CV::circleFill(230, screenHeight - 70, 10, 20);
     } else if (playerAtual == 2) {
         CV::color(rA, gA, bA);
+        CV::text(70, screenHeight - 75, "Your turn, Yellow!", 15);
+        CV::circleFill(260, screenHeight - 70, 10, 20);
     }
-    CV::circleFill(223, screenHeight - 71, 10, 20);
+
 
     desenhaBotoes(margemX, margemY);
 }
@@ -221,27 +225,26 @@ void desenhaJogo() {
 void desenhaMenuAjuda() {
     CV::color(0, 0, 0);
     CV::rect(50, 50, screenWidth - 50, screenHeight - 50);
-    CV::text(90, screenHeight - 150, "1 - Selecione o Jogador que ira comecar a partida;", 13);
-    CV::text(90, screenHeight - 190, "2 - Clique ENTER ou no botao Jogar!", 13);
-    CV::text(90, screenHeight - 230, "3 - Verifique o jogador atual no canto superior", 13);
-    CV::text(90, screenHeight - 250, "esquerdo e, conforme sua vez, clique sobre o botao", 13);
-    CV::text(90, screenHeight - 270, "da coluna que deseja colocar sua peca;", 13);
-    CV::text(90, screenHeight - 310, "4 - Seu objetivo e colocar 4 pecas em linha reta,", 13);
-    CV::text(90, screenHeight - 330, "seja verticalmente, horizontalmente ou em alguma", 13);
-    CV::text(90, screenHeight - 350, "diagonal;", 13);
-    CV::text(90, screenHeight - 390, "5 - Lembre-se que a peca sera colocada na casa", 13);
-    CV::text(90, screenHeight - 410, "vazia mais inferior da coluna selecionada;", 13);
-    CV::text(90, screenHeight - 450, "6 - Quando o objetivo for atingido por algum dos", 13);
-    CV::text(90, screenHeight - 470, "jogadores, ou quando nao houver mais casas livres,", 13);
-    CV::text(90, screenHeight - 490, "o jogo sera encerrado;", 13);
-    CV::text(90, screenHeight - 530, "7 - Caso queira aumentar ou diminuir o nivel de", 13);
-    CV::text(90, screenHeight - 550, "dificuldade, clique nas teclas + ou - do teclado", 13);
-    CV::text(90, screenHeight - 570, "ou nos botoes na tela, isso ira alterar o tamanho", 13);
-    CV::text(90, screenHeight - 590, "do tabuleiro.", 13);
+    CV::text(90, screenHeight - 150, "1 - Select the Player who will start the match;", 13);
+    CV::text(90, screenHeight - 190, "2 - Click ENTER or the Play button to start!", 13);
+    CV::text(90, screenHeight - 230, "3 - Check the current player in the upper left", 13);
+    CV::text(90, screenHeight - 250, "corner and, on your turn, click on the column", 13);
+    CV::text(90, screenHeight - 270, "button in which you want to place your piece;", 13);
+    CV::text(90, screenHeight - 310, "4 - Your objective is to place 4 pieces in a", 13);
+    CV::text(90, screenHeight - 330, "straight line, either vertically, horizontally", 13);
+    CV::text(90, screenHeight - 350, "or diagonally;", 13);
+    CV::text(90, screenHeight - 390, "5 - Remember that the piece will be placed in", 13);
+    CV::text(90, screenHeight - 410, "the lowest empty space of the selected column;", 13);
+    CV::text(90, screenHeight - 450, "6 - When the objective is reached by one of the", 13);
+    CV::text(90, screenHeight - 470, "players, or when there are no more free spaces,", 13);
+    CV::text(90, screenHeight - 490, "the game will end;", 13);
+    CV::text(90, screenHeight - 530, "7 - If you want to increase or decrease the size", 13);
+    CV::text(90, screenHeight - 550, "of the board, click the + or - keys on the keyboard", 13);
+    CV::text(90, screenHeight - 570, "or the buttons on the screen.", 13);
     CV::color(rR, gR, bR);
     CV::line(screenWidth - 100, screenHeight - 100, screenWidth - 70, screenHeight - 70);
     CV::line(screenWidth - 70, screenHeight - 100, screenWidth - 100, screenHeight - 70);
-    CV::text(90, screenHeight - 100, "Menu de ajuda", 15);
+    CV::text(90, screenHeight - 100, "Help menu", 15);
 }
 
 void desenhaFim() {
@@ -397,7 +400,7 @@ void botoesInicio() {
     if (mouseX >= 275 && mouseX <= 425 && mouseY >= 185  && mouseY <= 225) {
         connect4 = TELA_JOGO;
     }
-    if (mouseX >= ((screenWidth / 2) - 75) && mouseX <= ((screenWidth / 2) + 75) && mouseY >= (screenHeight - 85)  && mouseY <= (screenHeight - 55)) {
+    if (mouseX >= ((screenWidth / 2) - 40) && mouseX <= ((screenWidth / 2) + 40) && mouseY >= (screenHeight - 85)  && mouseY <= (screenHeight - 55)) {
         estadoAnterior = connect4;
         connect4 = MENU_AJUDA;
     }
@@ -417,7 +420,7 @@ void botoesJogo() {
             alocaPeca(i + 1);
         }
     }
-    if (mouseX >= ((screenWidth / 2) - 75) && mouseX <= ((screenWidth / 2) + 75) && mouseY >= (screenHeight - 85)  && mouseY <= (screenHeight - 55)) {
+    if (mouseX >= ((screenWidth / 2) - 40) && mouseX <= ((screenWidth / 2) + 40) && mouseY >= (screenHeight - 85)  && mouseY <= (screenHeight - 55)) {
         estadoAnterior = connect4;
         connect4 = MENU_AJUDA;
     }
