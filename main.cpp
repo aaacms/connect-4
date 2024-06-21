@@ -18,7 +18,7 @@ int linhas = 6;
 int colunas = 7;
 int tabuleiro[6][7];
 int c1 = 6, c2 = 6, c3 = 6, c4 = 6, c5 = 6, c6 = 6, c7 = 6;
-int ganhador = 0; // sera 0 se ninguem ganhou, 1 se o vermelho ganhou, 2 se o amarelo ganhou, 3 empate
+int ganhador = 3; // sera 0 se ninguem ganhou, 1 se o vermelho ganhou, 2 se o amarelo ganhou, 3 empate
 int playerAtual = 1; //1 = vermelho, 2 = amarelo
 enum GameState {
     TELA_INICIO,
@@ -27,13 +27,18 @@ enum GameState {
     TELA_FIM,
     GAME_QUIT
 };
-enum GameState connect4 = TELA_INICIO;
+enum GameState connect4 = TELA_FIM;
 enum GameState estadoAnterior; //usada para "lembrar" o menu de ajuda em qual tela estava
 float anima = 700;
 float raioQuit = 500;
 float raioInit = 0;
 int tamanhoCasa = 80;
 int scoreVermelho = 0, scoreAmarelo = 0;
+float rV = 1, gV = 0.18, bV = 0.18; // Cor vermelha
+float rA = 1, gA = 0.8, bA = 0; // Cor amarela
+float rR = 0.26, gR = 0.13, bR = 0.93; // Cor roxa
+float rL = 1, gL = 0.5, bL = 0; // Cor laranja
+
 
 // Função para inicializar o tabuleiro, definindo todas as posições como 0 (vazio)
 void inicializaTabuleiro() {
@@ -45,7 +50,7 @@ void inicializaTabuleiro() {
 }
 
 void desenhaInicio() {
-    CV::color(1, 0, 1);
+    CV::color(rR, gR, bR);
     CV::rect(285, 185, 415, 225);
     CV::rect(280, 180, 420, 230);
     CV::rect(230, 480, 470, 530);
@@ -62,9 +67,9 @@ void desenhaInicio() {
     } else if (playerAtual == 2) {
         CV::circle((screenWidth / 2) + 45, 340, 35, 35);
     }
-    CV::color(1, 0, 0);
+    CV::color(rV, gV, bV);
     CV::circleFill((screenWidth / 2) - 45, 340, 30, 30);
-    CV::color(1, 1, 0);
+    CV::color(rA, gA, bA);
     CV::circleFill((screenWidth / 2) + 45, 340, 30, 30);
 }
 
@@ -165,7 +170,7 @@ void desenhaBotoes(int margemX, int margemY) {
     for (int i = 0; i < colunas; i++) {
         char str[2];
         sprintf(str, "%d", i + 1);
-        CV::color(1, 0, 1);
+        CV::color(rR, gR, bR);
         CV::rect(margemX + i * tamanhoCasa + 15, margemY + linhas * tamanhoCasa + 10, margemX + (i + 1) * tamanhoCasa - 15, margemY + (linhas + 1) * tamanhoCasa - 40);
         CV::color(0, 0, 0);
         CV::text(margemX + (i + 1) * tamanhoCasa - 44, margemY + (linhas + 1) * tamanhoCasa - 60, str, 13);
@@ -176,7 +181,7 @@ void desenhaBotoes(int margemX, int margemY) {
 void desenhaJogo() {
     int margemX = (screenWidth - (colunas * tamanhoCasa)) / 2;
     int margemY = (alturaTabuleiro - (linhas * tamanhoCasa)) / 2;
-    CV::color(0, 0, 1);
+    CV::color(0.4, 0.4, 1); //Cor azul
     CV::rectFill(margemX, margemY, screenWidth - margemX, alturaTabuleiro - margemY);
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
@@ -184,15 +189,15 @@ void desenhaJogo() {
                 CV::color(1, 1, 1);
                 CV::circleFill(margemX + (j + 1) * tamanhoCasa - (tamanhoCasa / 2), margemY + (i + 1) * tamanhoCasa - (tamanhoCasa / 2), 30, 30);
             } else if (tabuleiro[i][j] == 1) {
-                CV::color(1, 0, 0);
+                CV::color(rV, gV, bV);
                 CV::circleFill(margemX + (j + 1) * tamanhoCasa - (tamanhoCasa / 2), margemY + (i + 1) * tamanhoCasa - (tamanhoCasa / 2), 30, 30);
             } else if (tabuleiro[i][j] == 2) {
-                CV::color(1, 1, 0);
+                CV::color(rA, gA, bA);
                 CV::circleFill(margemX + (j + 1) * tamanhoCasa - (tamanhoCasa / 2), margemY + (i + 1) * tamanhoCasa - (tamanhoCasa / 2), 30, 30);
             }
         }
     }
-    CV::color(1, 0, 1);
+    CV::color(rR, gR, bR);
     CV::rect((screenWidth / 2) - 75, screenHeight - 85, (screenWidth / 2) + 75, screenHeight - 55);
     CV::text(70, screenHeight - 75, "Jogador atual:", 15);
     CV::text(287, screenHeight - 75, "Menu de Ajuda", 13);
@@ -203,9 +208,9 @@ void desenhaJogo() {
     CV::text(600, screenHeight - 75, "+", 15);
 
     if (playerAtual == 1) {
-        CV::color(1, 0, 0);
+        CV::color(rV, gV, bV);
     } else if (playerAtual == 2) {
-        CV::color(1, 1, 0);
+        CV::color(rA, gA, bA);
     }
     CV::circleFill(223, screenHeight - 71, 10, 20);
 
@@ -233,7 +238,7 @@ void desenhaMenuAjuda() {
     CV::text(90, screenHeight - 550, "dificuldade, clique nas teclas + ou - do teclado", 13);
     CV::text(90, screenHeight - 570, "ou nos botoes na tela, isso ira alterar o tamanho", 13);
     CV::text(90, screenHeight - 590, "do tabuleiro.", 13);
-    CV::color(1, 0, 1);
+    CV::color(rR, gR, bR);
     CV::line(screenWidth - 100, screenHeight - 100, screenWidth - 70, screenHeight - 70);
     CV::line(screenWidth - 70, screenHeight - 100, screenWidth - 100, screenHeight - 70);
     CV::text(90, screenHeight - 100, "Menu de ajuda", 15);
@@ -244,37 +249,43 @@ void desenhaFim() {
     CV::rectFill(150, 150, 550, 550);
 
     if (ganhador == 1) {
-        CV::color(1, 0, 0);
-        CV::rectFill(180, 425, 520, 465);
+        CV::color(rV, gV, bV);
+        CV::rect(150, 150, 550, 550);
+        CV::rect(285, 260, 415, 300);
+        CV::rect(285, 200, 415, 240);
+        CV::rect(285, 445, 415, 485);
+        CV::rect(280, 440, 420, 490);
         CV::color(0, 0, 0);
-        CV::text(188, 440, "O ganhador foi o Player vermelho!", 13);
+        CV::text(307, 460, "RED WINS!", 15);
     } else if (ganhador == 2) {
-        CV::color(1, 1, 0);
-        CV::rectFill(180, 425, 520, 465);
+        CV::color(rA, gA, bA);
+        CV::rect(150, 150, 550, 550);
+        CV::rect(285, 260, 415, 300);
+        CV::rect(285, 200, 415, 240);
+        CV::rect(285, 445, 415, 485);
+        CV::rect(280, 440, 420, 490);
         CV::color(0, 0, 0);
-        CV::text(190, 440, "O ganhador foi o Player amarelo!", 13);
+        CV::text(292, 460, "YELLOW WINS!", 15);
     } else if (ganhador == 3) {
-        CV::color(1, 0.5, 0);
-        CV::rectFill(180, 425, 520, 465);
+        CV::color(rL, gL, bL);
+        CV::rect(150, 150, 550, 550);
+        CV::rect(285, 260, 415, 300);
+        CV::rect(285, 200, 415, 240);
+        CV::rect(285, 445, 415, 485);
+        CV::rect(280, 440, 420, 490);
         CV::color(0, 0, 0);
-        CV::text(200, 440, "Houve um empate!", 13);
+        CV::text(293, 460, "IT'S A DRAW!", 15);
     }
-
-    CV::color(1, 0, 1);
-    CV::rect(150, 150, 550, 550);
-    CV::rect(285, 260, 415, 300);
-    CV::rect(285, 200, 415, 240);
     CV::color(0, 0, 0);
-    CV::text(302, 500, "GAME OVER!", 15);
-    CV::text(327, 380, "SCORE", 13);
-    CV::text(276, 360, "Vermelho......", 13);
-    CV::text(276, 340, "Amarelo.......", 13);
+    CV::text(327, 400, "SCORE", 13);
+    CV::text(288, 380, "Red.........", 13);
+    CV::text(288, 360, "Yellow......", 13);
     char strp1[5];
     sprintf(strp1, "%d", scoreVermelho);
     char strp2[5];
     sprintf(strp2, "%d", scoreAmarelo);
-    CV::text(415, 360, strp1, 13);
-    CV::text(415, 340, strp2, 13);
+    CV::text(408, 380, strp1, 13);
+    CV::text(408, 360, strp2, 13);
     CV::text(297, 275, "PLAY AGAIN!", 15);
     CV::text(331, 215, "QUIT", 15);
 }
@@ -285,9 +296,9 @@ int geraRandom() {
 
 void animaFim() {
     if (ganhador == 1) {
-        CV::color(1, 0, 0);
+        CV::color(rV, gV, bV);
     } else if (ganhador == 2) {
-        CV::color(1, 1, 0);
+        CV::color(rA, gA, bA);
     }
     int x = geraRandom();
     int y = geraRandom();
@@ -330,17 +341,19 @@ void render() {
             break;
 
         case TELA_FIM:
-            for (int i = 0; i < 100; i++) {
-                animaFim();
+            if (ganhador == 1 || ganhador == 2) {
+                for (int i = 0; i < 50; i++) {
+                    animaFim();
+                }
             }
             desenhaFim();
             break;
 
         case GAME_QUIT:
             if (scoreAmarelo < scoreVermelho) {
-                CV::color(1, 0, 0);
+                CV::color(rV, gV, bV);
             } else if (scoreVermelho < scoreAmarelo) {
-                CV::color(1, 1, 0);
+                CV::color(rA, gA, bA);
             } else {
                 CV::color(0, 0, 0);
             }
