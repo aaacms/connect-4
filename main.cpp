@@ -484,7 +484,8 @@ void mouse(int button, int state, int wheel, int direction, int x, int y) {
 //Chamada uma vez
 int main(void) {
    CV::init(&screenWidth, &screenHeight, "Trabalho da Amanda");
-    srand(time(NULL));
+
+   srand(time(NULL));
    inicializaTabuleiro();
 
    CV::run();
